@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vocab Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0e0c; --ink2: #3a3830; --ink3: #7a7670;
+  --paper: #f7f4ee; --paper2: #ede9e1; --paper3: #e2ddd4;
+  --accent: #c1440e; --teal: #1a6b5a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper); color: var(--ink);
+  min-height: 100vh; max-width: 430px; margin: 0 auto;
+  padding: 28px 20px 80px;
+}
+
+.app-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 4px;
+}
+.app-sub {
+  font-size: 12px; color: var(--ink3); margin-bottom: 28px; line-height: 1.5;
+}
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 6px;
+}
+.field input, .field textarea {
+  width: 100%; border: 1px solid var(--paper3);
+  background: var(--paper2); border-radius: 10px;
+  padding: 10px 14px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: var(--ink); outline: none;
+  transition: border-color 0.2s; resize: none; -webkit-appearance: none;
+  line-height: 1.6;
+}
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+.gen-btn {
+  width: 100%; padding: 13px; background: var(--accent); color: white;
+  border: none; border-radius: 11px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: opacity 0.15s; margin-bottom: 32px;
+}
+.gen-btn:active { opacity: 0.8; }
+
+.section-label {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+}
+
+.wallpaper-card {
+  width: 100%; aspect-ratio: 9 / 19.5;
+  border-radius: 28px; overflow: hidden;
+  position: relative; display: flex;
+  flex-direction: column; justify-content: flex-end;
+  align-items: center; margin-bottom: 12px;
+}
+
+.wc-clock {
+  position: absolute; top: 0; left: 0; right: 0; height: 38%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  color: #2a2a2a;
+}
+.wc-clock-time {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(32px, 9vw, 48px);
+  font-weight: 300; letter-spacing: 0.04em; opacity: 0.18; line-height: 1;
+}
+.wc-clock-date {
+  font-size: clamp(9px, 2.2vw, 12px); letter-spacing: 0.1em;
+  opacity: 0.12; text-transform: uppercase; font-family: 'DM Mono', monospace;
+}
+.wc-rule {
+  position: absolute; top: 38%; left: 20px; right: 20px;
+  height: 1px; opacity: 0.1; background: #2a2a2a;
+}
+.wc-content {
+  width: 100%; padding: 24px 28px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; min-height: 64%;
+}
+.wc-en {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 8vw, 44px);
+  font-weight: 400; line-height: 1.1;
+  margin-bottom: 10px; color: #2a2a2a;
+}
+.wc-meaning {
+  font-size: clamp(12px, 3vw, 15px); color: #4a4a4a;
+  line-height: 1.6; margin-bottom: 18px;
+  padding: 0 8px; font-style: italic;
+}
+.wc-example {
+  font-size: clamp(10px, 2.5vw, 13px); color: #5a5a5a;
+  line-height: 1.65; font-style: italic; padding: 0 4px;
+  opacity: 0.75;
+}
+.wc-footer {
+  display: flex; justify-content: space-between;
+  align-items: center; width: 100%;
+  padding: 16px 4px 0;
+}
+.wc-brand, .wc-num {
+  font-family: 'DM Mono', monospace;
+  font-size: clamp(8px, 1.8vw, 10px); letter-spacing: 0.14em;
+  color: #2a2a2a; opacity: 0.18;
+}
+
+.card-nav {
+  display: flex; gap: 10px; align-items: center;
+  justify-content: center; margin-bottom: 16px;
+}
+.arrow-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--paper3); background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--ink3); transition: all 0.15s;
+}
+.arrow-btn:active { background: var(--paper2); }
+.card-counter {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--ink3); letter-spacing: 0.08em;
+  min-width: 44px; text-align: center;
+}
+
+.save-btn {
+  width: 100%; padding: 13px; background: var(--teal); color: white;
+  border: none; border-radius: 11px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: opacity 0.15s; margin-bottom: 8px;
+}
+.save-btn:active { opacity: 0.82; }
+.save-hint {
+  font-size: 11px; color: var(--ink3); text-align: center;
+  line-height: 1.5; margin-bottom: 32px;
+}
+
+.divider { border: none; border-top: 1px solid var(--paper3); margin: 4px 0 28px; }
+
+.word-list { display: flex; flex-direction: column; gap: 8px; }
+.word-item {
+  background: var(--paper2); border-radius: 12px;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: background 0.15s;
+  border-left: 3px solid var(--paper3);
+}
+.word-item:active { background: var(--paper3); }
+.word-item.active { border-left-color: var(--accent); }
+.word-item-left { flex: 1; min-width: 0; }
+.word-item-en {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; color: var(--ink); margin-bottom: 2px;
+}
+.word-item-meaning {
+  font-size: 12px; color: var(--ink3); line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.word-item-del {
+  font-size: 18px; color: var(--ink3); padding: 4px 8px;
+  cursor: pointer; transition: color 0.15s; flex-shrink: 0;
+  background: none; border: none; line-height: 1;
+}
+.word-item-del:active { color: var(--accent); }
+
+.empty-state {
+  text-align: center; padding: 32px 20px;
+  font-size: 13px; color: var(--ink3); line-height: 1.8;
+  background: var(--paper2); border-radius: 14px;
+}
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--teal); color: white; padding: 8px 20px;
+  border-radius: 20px; font-size: 12px; font-family: 'DM Sans', sans-serif;
+  z-index: 999; opacity: 0; transition: opacity 0.2s;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="app-title">Vocab Cards</div>
+<div class="app-sub">Add a word, its meaning, and an example sentence to generate a wallpaper card.</div>
+
+<div class="field">
+  <label>Word or phrase</label>
+  <input type="text" id="inp-word" placeholder="e.g. first principles" autocomplete="off" spellcheck="false">
+</div>
+<div class="field">
+  <label>Meaning</label>
+  <textarea id="inp-meaning" placeholder="A plain explanation in your own words…" rows="2"></textarea>
+</div>
+<div class="field">
+  <label>Example sentence</label>
+  <textarea id="inp-example" placeholder="A line from the episode, or your own…" rows="2"></textarea>
+</div>
+<button class="gen-btn" onclick="addWord()">Generate card</button>
+
+<div id="card-section" style="display:none">
+  <div class="section-label">Current card</div>
+
+  <div class="wallpaper-card" id="card-display">
+    <div class="wc-clock">
+      <div class="wc-clock-time">9:41</div>
+      <div class="wc-clock-date" id="wc-date"></div>
+    </div>
+    <div class="wc-rule"></div>
+    <div class="wc-content">
+      <div class="wc-en" id="wc-en"></div>
+      <div class="wc-meaning" id="wc-meaning"></div>
+      <div class="wc-example" id="wc-example"></div>
+      <div class="wc-footer">
+        <span class="wc-brand">VOCAB</span>
+        <span class="wc-num" id="wc-num"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-nav">
+    <button class="arrow-btn" onclick="prevCard()">←</button>
+    <span class="card-counter" id="card-counter">1 / 1</span>
+    <button class="arrow-btn" onclick="nextCard()">→</button>
+  </div>
+
+  <button class="save-btn" onclick="saveCard()">Save this card as image</button>
+  <p class="save-hint">On iPhone: tap Save → share sheet → Save Image → use as wallpaper.</p>
+
+  <hr class="divider">
+  <div class="section-label" id="list-label">Your words</div>
+  <div class="word-list" id="word-list"></div>
+</div>
+
+<div id="empty-section">
+  <div class="empty-state">Your cards will appear here.<br>Add your first word above.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'vocabcards_v1';
+const MAX = 10;
+const PALETTES = [
+  '#f7f4ee','#ede9e1','#e8e4dc','#f0ece4',
+  '#e6efe6','#e8f0f0','#ede8f0','#f2ebe8',
+  '#eef0f4','#f0eee8'
+];
+
+let words = [];
+let idx = 0;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(words)); }
+  catch(e) {}
+}
+
+function showToast(msg, ms=2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function todayLabel() {
+  return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+}
+
+function renderCard(i) {
+  if (!words.length) return;
+  const w = words[i];
+  const card = document.getElementById('card-display');
+  card.style.background = PALETTES[i % PALETTES.length];
+  document.getElementById('wc-en').textContent = w.word;
+  document.getElementById('wc-meaning').textContent = w.meaning;
+  const exEl = document.getElementById('wc-example');
+  exEl.textContent = w.example ? `"${w.example}"` : '';
+  exEl.style.display = w.example ? 'block' : 'none';
+  document.getElementById('wc-num').textContent = `${i+1} / ${words.length}`;
+  document.getElementById('card-counter').textContent = `${i+1} / ${words.length}`;
+  document.getElementById('wc-date').textContent = todayLabel();
+  idx = i;
+  document.querySelectorAll('.word-item').forEach((el, j) => {
+    el.classList.toggle('active', j === i);
+  });
+}
+
+function renderList() {
+  const label = document.getElementById('list-label');
+  if (label) label.textContent = `Your words (${words.length} / ${MAX})`;
+  const list = document.getElementById('word-list');
+  list.innerHTML = words.map((w, i) => `
+    <div class="word-item${i===idx?' active':''}" onclick="goCard(${i})">
+      <div class="word-item-left">
+        <div class="word-item-en">${esc(w.word)}</div>
+        <div class="word-item-meaning">${esc(w.meaning)}</div>
+      </div>
+      <button class="word-item-del" onclick="del(event,${i})">×</button>
+    </div>`).join('');
+}
+
+function toggleSections() {
+  const has = words.length > 0;
+  document.getElementById('card-section').style.display = has ? 'block' : 'none';
+  document.getElementById('empty-section').style.display = has ? 'none' : 'block';
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addWord() {
+  const word    = document.getElementById('inp-word').value.trim();
+  const meaning = document.getElementById('inp-meaning').value.trim();
+  const example = document.getElementById('inp-example').value.trim();
+  if (!word || !meaning) { showToast('Word and meaning are required'); return; }
+
+  if (words.length >= MAX) {
+    words.shift();
+    showToast('Oldest card removed — new one added');
+  }
+  words.push({ word, meaning, example });
+  save();
+
+  document.getElementById('inp-word').value = '';
+  document.getElementById('inp-meaning').value = '';
+  document.getElementById('inp-example').value = '';
+  document.getElementById('inp-word').focus();
+
+  toggleSections();
+  renderList();
+  goCard(words.length - 1);
+}
+
+function goCard(i) {
+  idx = i;
+  renderCard(i);
+  renderList();
+}
+function nextCard() { goCard((idx + 1) % words.length); }
+function prevCard() { goCard((idx - 1 + words.length) % words.length); }
+
+function del(e, i) {
+  e.stopPropagation();
+  words.splice(i, 1);
+  save();
+  const newIdx = Math.min(idx, Math.max(0, words.length - 1));
+  toggleSections();
+  renderList();
+  if (words.length) goCard(newIdx);
+}
+
+function wrapText(ctx, text, maxW) {
+  const ws = text.split(' ');
+  const lines = []; let cur = '';
+  for (const w of ws) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && cur) { lines.push(cur); cur = w; }
+    else cur = test;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+function saveCard() {
+  if (!words.length) return;
+  const w = words[idx];
+  const bg = PALETTES[idx % PALETTES.length];
+  const W = 1290, H = 2796, pad = 110;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  document.fonts.ready.then(() => {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'center';
+
+    let y = H * 0.41;
+
+    const tLen = w.word.length;
+    const tSize = tLen > 18 ? 96 : tLen > 12 ? 118 : 140;
+    ctx.fillStyle = '#2a2a2a';
+    ctx.font = `400 ${tSize}px "Playfair Display"`;
+    const tLines = wrapText(ctx, w.word, W - pad * 2);
+    tLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * tSize * 1.18));
+    y += tLines.length * tSize * 1.18 + 52;
+
+    ctx.fillStyle = '#4a4a4a';
+    ctx.font = `italic 400 56px "DM Sans"`;
+    const mLines = wrapText(ctx, w.meaning, W - pad * 2.2);
+    mLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 78));
+    y += mLines.length * 78 + 64;
+
+    if (w.example) {
+      ctx.save();
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = '#5a5a5a';
+      ctx.font = `italic 400 44px "DM Sans"`;
+      const eLines = wrapText(ctx, `"${w.example}"`, W - pad * 2.6);
+      eLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 62));
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#2a2a2a';
+    ctx.font = `400 36px "DM Mono"`;
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'left';
+    ctx.fillText('VOCAB', pad, H - 130);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${idx+1} / ${words.length}`, W - pad, H - 130);
+    ctx.restore();
+
+    const filename = `vocab-${w.word.replace(/\s+/g,'-').toLowerCase()}.png`;
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: w.word }); }
+        catch(e) { if (e.name !== 'AbortError') showToast('Try long-pressing the card to save'); }
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast('Image saved ✓');
+      }
+    }, 'image/png');
+  });
+}
+
+// Swipe support
+let tx0 = null;
+document.addEventListener('touchstart', e => {
+  if (e.target.closest('.wallpaper-card')) tx0 = e.touches[0].clientX;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (tx0 === null) return;
+  const dx = e.changedTouches[0].clientX - tx0;
+  if (Math.abs(dx) > 40 && words.length > 1) { dx < 0 ? nextCard() : prevCard(); }
+  tx0 = null;
+}, { passive: true });
+
+// Enter key on word input moves to meaning
+document.getElementById('inp-word').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('inp-meaning').focus(); }
+});
+
+// Init
+words = load();
+toggleSections();
+if (words.length) { renderList(); renderCard(0); }
+</script>
+</body>
+</html>
