@@ -62,9 +62,9 @@ body {
 
 .wallpaper-card {
   width: 100%; aspect-ratio: 9 / 19.5;
-  border-radius: 28px; overflow: hidden;
+  border-radius: 32px; overflow: hidden;
   position: relative; display: flex;
-  flex-direction: column; justify-content: flex-end;
+  flex-direction: column; justify-content: center;
   align-items: center; margin-bottom: 12px;
 }
 
@@ -72,52 +72,51 @@ body {
   position: absolute; top: 0; left: 0; right: 0; height: 38%;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 4px;
-  color: #2a2a2a;
 }
 .wc-clock-time {
   font-family: 'DM Sans', sans-serif;
-  font-size: clamp(32px, 9vw, 48px);
-  font-weight: 300; letter-spacing: 0.04em; opacity: 0.18; line-height: 1;
+  font-size: clamp(28px, 8vw, 44px);
+  font-weight: 300; letter-spacing: 0.04em; opacity: 0.16; line-height: 1;
 }
 .wc-clock-date {
   font-size: clamp(9px, 2.2vw, 12px); letter-spacing: 0.1em;
-  opacity: 0.12; text-transform: uppercase; font-family: 'DM Mono', monospace;
+  opacity: 0.1; text-transform: uppercase;
 }
 .wc-rule {
   position: absolute; top: 38%; left: 20px; right: 20px;
-  height: 1px; opacity: 0.1; background: #2a2a2a;
+  height: 1px; opacity: 0.08; background: currentColor;
 }
 .wc-content {
-  width: 100%; padding: 24px 28px;
+  width: 100%; padding: clamp(16px, 5vw, 28px);
+  padding-top: clamp(12px, 3vw, 18px);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  text-align: center; min-height: 64%;
+  text-align: center; min-height: 64%; margin-top: 38%;
 }
 .wc-en {
   font-family: 'Playfair Display', serif;
   font-size: clamp(26px, 8vw, 44px);
   font-weight: 400; line-height: 1.1;
-  margin-bottom: 10px; color: #2a2a2a;
+  margin-bottom: clamp(6px, 1.5vw, 10px);
 }
 .wc-meaning {
-  font-size: clamp(12px, 3vw, 15px); color: #4a4a4a;
+  font-size: clamp(12px, 3vw, 15px); opacity: 0.7;
   line-height: 1.6; margin-bottom: 18px;
   padding: 0 8px; font-style: italic;
 }
 .wc-example {
-  font-size: clamp(10px, 2.5vw, 13px); color: #5a5a5a;
-  line-height: 1.65; font-style: italic; padding: 0 4px;
-  opacity: 0.75;
+  font-size: clamp(11px, 2.8vw, 14px);
+  line-height: 1.65; font-style: italic; padding: 0 clamp(4px, 2vw, 12px);
+  margin-bottom: clamp(6px, 1.5vw, 10px); opacity: 0.55;
 }
 .wc-footer {
   display: flex; justify-content: space-between;
   align-items: center; width: 100%;
-  padding: 16px 4px 0;
 }
 .wc-brand, .wc-num {
   font-family: 'DM Mono', monospace;
-  font-size: clamp(8px, 1.8vw, 10px); letter-spacing: 0.14em;
-  color: #2a2a2a; opacity: 0.18;
+  font-size: clamp(8px, 2vw, 10px); letter-spacing: 0.14em;
+  opacity: 0.18;
 }
 
 .card-nav {
@@ -258,9 +257,9 @@ body {
 const STORAGE_KEY = 'vocabcards_v1';
 const MAX = 10;
 const PALETTES = [
-  '#f7f4ee','#ede9e1','#e8e4dc','#f0ece4',
-  '#e6efe6','#e8f0f0','#ede8f0','#f2ebe8',
-  '#eef0f4','#f0eee8'
+  {bg:'#d2b9a0',fg:'#37160a'},{bg:'#b2c8b2',fg:'#163016'},
+  {bg:'#b9c4d4',fg:'#14243a'},{bg:'#d2b6b9',fg:'#301018'},
+  {bg:'#d6ca9e',fg:'#281c00'},{bg:'#c0bada',fg:'#1a1232'},
 ];
 
 let words = [];
@@ -289,7 +288,8 @@ function renderCard(i) {
   if (!words.length) return;
   const w = words[i];
   const card = document.getElementById('card-display');
-  card.style.background = PALETTES[i % PALETTES.length];
+  const p = PALETTES[i % PALETTES.length];
+  card.style.background = p.bg; card.style.color = p.fg;
   document.getElementById('wc-en').textContent = w.word;
   document.getElementById('wc-meaning').textContent = w.meaning;
   const exEl = document.getElementById('wc-example');
@@ -384,46 +384,52 @@ function wrapText(ctx, text, maxW) {
 function saveCard() {
   if (!words.length) return;
   const w = words[idx];
-  const bg = PALETTES[idx % PALETTES.length];
+  const p = PALETTES[idx % PALETTES.length];
   const W = 1290, H = 2796, pad = 110;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
   document.fonts.ready.then(() => {
-    ctx.fillStyle = bg;
+    // Background
+    ctx.fillStyle = p.bg;
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center';
 
-    let y = H * 0.41;
+    // Content starts at 52% (below where the phone clock sits)
+    ctx.textBaseline = 'alphabetic';
+    let y = H * 0.52;
 
     const tLen = w.word.length;
     const tSize = tLen > 18 ? 96 : tLen > 12 ? 118 : 140;
-    ctx.fillStyle = '#2a2a2a';
+    ctx.fillStyle = p.fg;
     ctx.font = `400 ${tSize}px "Playfair Display"`;
     const tLines = wrapText(ctx, w.word, W - pad * 2);
-    tLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * tSize * 1.18));
-    y += tLines.length * tSize * 1.18 + 52;
+    tLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * tSize * 1.15));
+    y += tLines.length * tSize * 1.15 + 28;
 
-    ctx.fillStyle = '#4a4a4a';
+    ctx.save();
+    ctx.fillStyle = p.fg;
+    ctx.globalAlpha = 0.7;
     ctx.font = `italic 400 56px "DM Sans"`;
     const mLines = wrapText(ctx, w.meaning, W - pad * 2.2);
-    mLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 78));
-    y += mLines.length * 78 + 64;
+    mLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 72));
+    ctx.restore();
+    y += mLines.length * 72 + 32;
 
     if (w.example) {
       ctx.save();
-      ctx.globalAlpha = 0.65;
-      ctx.fillStyle = '#5a5a5a';
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = p.fg;
       ctx.font = `italic 400 44px "DM Sans"`;
       const eLines = wrapText(ctx, `"${w.example}"`, W - pad * 2.6);
-      eLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 62));
+      eLines.forEach((line, i) => ctx.fillText(line, W/2, y + i * 58));
       ctx.restore();
     }
 
     ctx.save();
     ctx.globalAlpha = 0.18;
-    ctx.fillStyle = '#2a2a2a';
+    ctx.fillStyle = p.fg;
     ctx.font = `400 36px "DM Mono"`;
     ctx.textBaseline = 'bottom';
     ctx.textAlign = 'left';
